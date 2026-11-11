@@ -139,6 +139,11 @@ CI checks pull requests and `main`. Publishing is a separate, manually invoked
 the package manifest. It rebuilds and tests the tarball before publishing.
 Release jobs do not use dependency caches.
 
+Registry metadata may lag behind a successful publish. Verification retries
+briefly; if it still fails, investigate without republishing the version.
+Run the workflow on `main` with `verify_only` enabled to repeat validation and
+check the manifest version on npm without publishing.
+
 ### One-time bootstrap
 
 1. As npm user `amitport`, enable 2FA and create a short-lived granular token

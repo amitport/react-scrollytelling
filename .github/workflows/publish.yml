@@ -7,6 +7,10 @@ on:
         description: Use the one-time NPM_BOOTSTRAP_TOKEN secret for the first publication
         type: boolean
         default: false
+      verify_only:
+        description: Verify the manifest version on npm without publishing (may run on main)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,6 +33,7 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - name: Require a version tag matching package.json
+        if: ${{ !inputs.verify_only }}
         env:
           RELEASE_REF: ${{ github.ref }}
         run: |
@@ -43,10 +48,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - name: Publish with trusted publishing
-        if: ${{ !inputs.bootstrap }}
+        if: ${{ !inputs.verify_only && !inputs.bootstrap }}
         run: npm publish .artifacts/amitport-react-scrollytelling-$(node -p "require('./package.json').version").tgz --access public
       - name: Bootstrap the first publication
-        if: ${{ inputs.bootstrap }}
+        if: ${{ !inputs.verify_only && inputs.bootstrap }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
         run: |
@@ -56,4 +61,14 @@ jobs:
       - name: Verify the published version
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          npm view "@amitport/react-scrollytelling@$VERSION" version dist.integrity --registry=https://registry.npmjs.org
+          for ATTEMPT in 1 2 3 4 5 6; do
+            if npm view "@amitport/react-scrollytelling@$VERSION" version dist.integrity --registry=https://registry.npmjs.org; then
+              exit 0
+            fi
+            if [ "$ATTEMPT" -lt 6 ]; then
+              echo "::warning::Registry lookup failed (attempt $ATTEMPT/6); retrying in 20 seconds."
+              sleep 20
+            fi
+          done
+          echo "::error::Published version could not be verified. Do not republish; investigate and run with verify_only."
+          exit 1
