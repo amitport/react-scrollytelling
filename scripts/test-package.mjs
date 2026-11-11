@@ -8,6 +8,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const consumer = join(root, '.consumer');
 const npmCli = process.env.npm_execpath;
 assert.ok(npmCli, 'Run package verification through npm test');
+const published = process.argv[2] === '--published';
+assert.equal(process.argv.length, published ? 3 : 2, 'Only --published is supported');
 
 function run(args, cwd = root, capture = false) {
   const result = spawnSync(process.execPath, [npmCli, ...args], {
@@ -24,20 +26,21 @@ assert.ok(pack.files.every(({ path }) => path.startsWith('dist/') || ['package.j
 for (const path of ['dist/index.js', 'dist/index.d.ts', 'dist/styles.css', 'dist/THIRD_PARTY_NOTICES.txt']) {
   assert.ok(pack.files.some(file => file.path === path), `Missing ${path}`);
 }
-const css = await readFile(join(root, 'dist', 'styles.css'), 'utf8');
-assert.match(css, /data:.*?base64,/, 'Math fonts must be embedded');
-assert.doesNotMatch(css, /url\(["']?(?!data:)/, 'Styles must not reference unpackaged fonts');
-assert.doesNotMatch(css, /svd-/, 'Styles must use the neutral public namespace');
-
 await rm(consumer, { recursive: true, force: true });
 await cp(join(root, 'examples', 'basic'), consumer, { recursive: true, filter: source => !source.includes('node_modules') && !source.includes(`${join('basic', 'dist')}`) });
 const manifestPath = join(consumer, 'package.json');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-manifest.dependencies['@amitport/react-scrollytelling'] = `file:../.artifacts/${pack.filename}`;
+manifest.dependencies['@amitport/react-scrollytelling'] = published ? pack.version : `file:../.artifacts/${pack.filename}`;
 await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 run(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
 const installed = await realpath(join(consumer, 'node_modules', '@amitport', 'react-scrollytelling'));
-assert.ok(!relative(consumer, installed).startsWith('..'), 'Consumer must install the tarball, not link to source');
+assert.ok(!relative(consumer, installed).startsWith('..'), 'Consumer must install a package, not link to source');
+const installedManifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
+assert.equal(installedManifest.version, pack.version, 'Consumer must use the exact release version');
+const css = await readFile(join(installed, 'dist', 'styles.css'), 'utf8');
+assert.match(css, /data:.*?base64,/, 'Math fonts must be embedded');
+assert.doesNotMatch(css, /url\(["']?(?!data:)/, 'Styles must not reference unpackaged fonts');
+assert.doesNotMatch(css, /svd-/, 'Styles must use the neutral public namespace');
 run(['run', 'build'], consumer);
 run(['exec', '--', 'playwright', 'test']);
-console.log(`Verified packed package: ${pack.filename}`);
+console.log(`Verified ${published ? 'published' : 'packed'} package: ${pack.name}@${pack.version}`);

@@ -74,3 +74,7 @@ jobs:
           done
           echo "::error::Published version could not be verified. Do not republish; investigate and run with verify_only."
           exit 1
+      - name: Test installation from the public registry
+        env:
+          NPM_CONFIG_USERCONFIG: /dev/null
+        run: npm test -- --published

@@ -129,6 +129,10 @@ that consumer, then runs browser tests against its production build. Checks
 cover continuous scrolling, pinning, reverse navigation, mobile layout,
 reduced motion, equations/fonts, and short afterword anchors.
 
+After publication, `npm test -- --published` runs the same consumer checks
+against the exact manifest version installed from your configured registry.
+The release workflow verifies both anonymous registry access and installation.
+
 The package exports only the scroll core and math renderers. Slide players,
 domain-specific simulations, paper assets, and benchmark data are out of scope.
 
