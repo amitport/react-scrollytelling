@@ -59,6 +59,8 @@ jobs:
           test "$(npm whoami)" = amitport || { echo "::error::Bootstrap token must belong to npm user amitport."; exit 1; }
           npm publish .artifacts/amitport-react-scrollytelling-$(node -p "require('./package.json').version").tgz --access public --provenance
       - name: Verify the published version
+        env:
+          NPM_CONFIG_USERCONFIG: /dev/null
         run: |
           VERSION=$(node -p "require('./package.json').version")
           for ATTEMPT in 1 2 3 4 5 6; do
