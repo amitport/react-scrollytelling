@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.artifacts/
+.consumer/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.npmrc
+.env
+.env.*
+!.env.example

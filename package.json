@@ -1,0 +1,57 @@
+{
+  "name": "@amitport/react-scrollytelling",
+  "version": "0.1.0",
+  "description": "React scrollytelling with pinned narratives, scroll-driven visuals, and mathematical typesetting.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "author": "Amit Portnoy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amitport/react-scrollytelling.git"
+  },
+  "homepage": "https://github.com/amitport/react-scrollytelling#readme",
+  "bugs": {
+    "url": "https://github.com/amitport/react-scrollytelling/issues"
+  },
+  "files": ["dist", "LICENSE"],
+  "sideEffects": ["**/*.css"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
+    "test": "npm run check && npm run build && node scripts/test-package.mjs",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "framer-motion": "^14.1.0"
+  },
+  "dependencies": {
+    "katex": "^0.19.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "framer-motion": "^14.9.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}
