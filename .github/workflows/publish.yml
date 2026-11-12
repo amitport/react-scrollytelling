@@ -70,13 +70,13 @@ jobs:
           NPM_CONFIG_USERCONFIG: /dev/null
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          for ATTEMPT in 1 2 3 4 5 6; do
+          for ATTEMPT in $(seq 1 21); do
             if npm view "@amitport/react-scrollytelling@$VERSION" version dist.integrity --registry=https://registry.npmjs.org; then
               exit 0
             fi
-            if [ "$ATTEMPT" -lt 6 ]; then
-              echo "::warning::Registry lookup failed (attempt $ATTEMPT/6); retrying in 20 seconds."
-              sleep 20
+            if [ "$ATTEMPT" -lt 21 ]; then
+              echo "::warning::Registry lookup failed (attempt $ATTEMPT/21); retrying in 30 seconds."
+              sleep 30
             fi
           done
           echo "::error::Published version could not be verified. Do not republish; investigate and run with verify_only."
