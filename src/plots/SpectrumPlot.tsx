@@ -44,12 +44,12 @@ export function SpectrumPlot({
   return (
     <Frame {...frame} title={title} viewWidth={viewWidth} viewHeight={384}
       description={description ?? `${summary} These are matrix approximation metrics, not model accuracy.`}>
-      <text x={24} y={57} fill={colors.muted}>Bar: singular value σᵢ · Teal point: cumulative squared energy</text>
+      <text x={24} y={57} fill={colors.muted}>Bar: singular value σᵢ · Orange point: cumulative squared energy</text>
       <line x1={64} x2={viewWidth - 56} y1={246} y2={246} stroke={colors.line} />
       <text x={52} y={247} textAnchor="end" fill={colors.muted} fontSize={14}>0</text>
       <text x={52} y={100} textAnchor="end" fill={colors.muted} fontSize={14}>{formatValue(maximum)}</text>
-      <text x={viewWidth - 48} y={100} fill={colors.teal} fontSize={14}>100%</text>
-      <text x={viewWidth - 48} y={247} fill={colors.teal} fontSize={14}>0%</text>
+      <text x={viewWidth - 48} y={100} fill={colors.orange} fontSize={14}>100%</text>
+      <text x={viewWidth - 48} y={247} fill={colors.orange} fontSize={14}>0%</text>
       {values.map((value, i) => {
         const x = 64 + (i + 0.5) * step
         const height = maximum === 0 ? 0 : value / maximum * 140
@@ -57,7 +57,8 @@ export function SpectrumPlot({
           <g key={i} data-index={i} data-value={value} data-retained={i < retainedRank} data-cumulative-energy={energies[i]}>
             <rect data-spectrum-bar={i} x={x - barWidth / 2} y={246 - height} width={barWidth} height={height}
               fill={colors.blue} opacity={i < retainedRank ? 1 : 1 - 0.88 * p} rx={3} />
-            <circle cx={x} cy={246 - energies[i] * 140} r={4} fill={colors.teal} />
+            <circle data-spectrum-energy-point={i} cx={x} cy={246 - energies[i] * 140}
+              r={6} fill={colors.orange} stroke={colors.white} strokeWidth={2} />
             <text x={x} y={85} textAnchor="middle" fill={colors.ink} fontSize={14}>{formatValue(value)}</text>
             <text x={x} y={267} textAnchor="middle" fill={colors.ink} fontSize={14}>{labels?.[i] ?? `σ${i + 1}`}</text>
           </g>

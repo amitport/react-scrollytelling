@@ -36,9 +36,9 @@ export function QuantizationPlot({
   const summary = values.map((value, i) => `${labels?.[i] ?? `Value ${i + 1}`}: original ${formatValue(value)}, reconstructed ${formatValue(reconstructedValues[i])}${value !== clamp(value) ? ', clipped' : ''}`).join('; ')
   return (
     <Frame {...frame} title={title} viewHeight={viewHeight} viewWidth={viewWidth}
-      description={description ?? `Supplied quantizer results. Blue circles are originals, teal diamonds are reconstructions. Out-of-range originals are marked clipped at the range boundary. Rounding error is reconstruction minus clipped original; total error is reconstruction minus original. ${summary}`}>
+      description={description ?? `Supplied quantizer results. Blue circles are originals, orange diamonds are reconstructions. Out-of-range originals are marked clipped at the range boundary. Rounding error is reconstruction minus clipped original; total error is reconstruction minus original. ${summary}`}>
       <text x={24} y={57} fill={colors.blue}>● Original</text>
-      <text x={160} y={57} fill={colors.teal}>◆ Reconstruction</text>
+      <text x={160} y={57} fill={colors.orange}>◆ Reconstruction</text>
       <text x={360} y={57} fill={colors.muted}>Ticks: supplied levels</text>
       {values.map((value, i) => {
         const reconstructed = reconstructedValues[i]
@@ -62,11 +62,12 @@ export function QuantizationPlot({
                 <title>{`Level ${formatValue(level)}`}</title>
               </line>
             ))}
-            <line x1={originalX} x2={animatedX} y1={y - 8} y2={y + 8} stroke={colors.teal} strokeWidth={2} />
-            <circle cx={originalX} cy={y - 8} r={6} fill={colors.blue}>
+            <line x1={originalX} x2={animatedX} y1={y - 8} y2={y + 8} stroke={colors.orange} strokeWidth={2} />
+            <circle cx={originalX} cy={y - 8} r={6} fill={colors.blue} stroke={colors.white} strokeWidth={2}>
               <title>{`Original ${formatValue(value)}${value !== clipped ? ' (clipped)' : ''}`}</title>
             </circle>
-            <path data-quantized-point={i} d={`M ${animatedX} ${y + 1} l 7 7 l -7 7 l -7 -7 Z`} fill={colors.teal}>
+            <path data-quantized-point={i} d={`M ${animatedX} ${y + 1} l 7 7 l -7 7 l -7 -7 Z`}
+              fill={colors.orange} stroke={colors.white} strokeWidth={2}>
               <title>{`Reconstruction ${formatValue(reconstructed)}`}</title>
             </path>
             <text x={64} y={y + 36} fill={colors.muted} fontSize={14} data-rounding-error={roundingError}>

@@ -27,7 +27,7 @@ export const colors = {
   ink: '#16324f',
   muted: '#4b647b',
   blue: '#2563eb',
-  teal: '#0f766e',
+  orange: '#c2410c',
   line: '#b8cbdc',
   pale: '#eff6ff',
   white: '#ffffff',

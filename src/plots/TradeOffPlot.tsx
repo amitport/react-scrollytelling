@@ -113,7 +113,7 @@ export function TradeOffPlot({
     <Frame {...frame} title={title} viewWidth={viewWidth} viewHeight={viewHeight}
       description={description ?? `${axisLabel(xAxis)}; ${axisLabel(yAxis)}. ${highlightPareto ? 'Pareto dominance is computed on raw values before display transforms; all ties survive. ' : ''}Coordinates outside explicit domains are drawn at the boundary. ${summary}`}>
       <text x={24} y={55} fill={colors.muted} fontSize={14}>
-        {highlightPareto ? 'Teal: Pareto frontier · Ring: selected/highlighted' : 'Blue: supplied points · Ring: selected/highlighted'}
+        {highlightPareto ? 'Orange: Pareto frontier · Ring: selected/highlighted' : 'Blue: supplied points · Ring: selected/highlighted'}
       </text>
       {x.ticks.map((tick, i) => {
         const position = 90 + i / 4 * (right - 90)
@@ -152,8 +152,8 @@ export function TradeOffPlot({
           <g key={point.id} data-tradeoff-point={point.id} data-frontier={isFrontier} opacity={opacity}
             data-selected={selectedId === point.id} data-x={point.x} data-y={point.y}>
             <title>{`${point.label ?? point.id}: ${xAxis.label} ${formatNumber(point.x)}, ${yAxis.label} ${formatNumber(point.y)}`}</title>
-            <circle cx={px} cy={py} r={6 + duplicate * 3} fill={duplicate ? 'none' : isFrontier ? colors.teal : colors.blue}
-              stroke={isFrontier ? colors.teal : colors.blue} strokeWidth={2} />
+            <circle cx={px} cy={py} r={6 + duplicate * 3} fill={duplicate ? 'none' : isFrontier ? colors.orange : colors.blue}
+              stroke={isFrontier ? colors.orange : colors.blue} strokeWidth={2} />
             {highlighted && <circle cx={px} cy={py} r={11 + duplicate * 3} fill="none" stroke={colors.ink} strokeWidth={2} />}
             <text x={px + (labelRight ? 10 : -10)} y={py + labelOffset + duplicate * 17 * (labelOffset > 0 ? 1 : -1)}
               textAnchor={labelRight ? 'start' : 'end'} fill={colors.ink} fontSize={14}

@@ -30,7 +30,7 @@ function shape(values: readonly (readonly number[])[], name: string) {
 
 function heatColor(value: number, [minimum, maximum]: readonly [number, number]) {
   const intensity = Math.min(1, Math.max(0, value < 0 ? value / minimum : value / maximum || 0))
-  const endpoint = value < 0 ? [37, 99, 235] : [15, 118, 110]
+  const endpoint = value < 0 ? [37, 99, 235] : [194, 65, 12]
   return `rgb(${endpoint.map((channel) => Math.round(255 + (channel - 255) * intensity * 0.48)).join(',')})`
 }
 
@@ -76,7 +76,7 @@ export function MatrixPlot({
   const summary = displayed.map((row, i) => `${rowLabels?.[i] ?? `Row ${i + 1}`}: ${row.map(formatValue).join(', ')}`).join('; ')
   return (
     <Frame {...frame} title={title} viewWidth={viewWidth} viewHeight={viewHeight} compact={compact}
-      description={description ?? `${rows} by ${columns} ${referenceValues ? 'elementwise residual, values minus referenceValues' : 'matrix'}. Negative values are blue; positive values are teal. ${retainedRank === undefined ? '' : `Leading ${retainedRank} rows and columns highlighted; this is a visual mask, not a computed low-rank approximation. `}${summary}`}>
+      description={description ?? `${rows} by ${columns} ${referenceValues ? 'elementwise residual, values minus referenceValues' : 'matrix'}. Negative values are blue; positive values are orange. ${retainedRank === undefined ? '' : `Leading ${retainedRank} rows and columns highlighted; this is a visual mask, not a computed low-rank approximation. `}${summary}`}>
       {(!compact || columnLabels) && Array.from({ length: columns }, (_, j) => (
         <text key={j} x={left + (j + 0.5) * cellWidth} y={top - 14} textAnchor="middle" fill={colors.ink}>
           {columnLabels?.[j] ?? j + 1}
@@ -103,7 +103,7 @@ export function MatrixPlot({
         </g>
       ))}
       {!compact && <text x={24} y={viewHeight - 40} fill={colors.muted}>
-        Blue: negative · Teal: positive · Color range [{formatValue(limits[0])}, {formatValue(limits[1])}]
+        Blue: negative · Orange: positive · Color range [{formatValue(limits[0])}, {formatValue(limits[1])}]
       </text>}
       {!compact && <text x={24} y={viewHeight - 16} fill={colors.muted} fontSize={14}>
         {referenceValues ? 'Residual = values − referenceValues. ' : ''}

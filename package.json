@@ -1,6 +1,6 @@
 {
   "name": "@amitport/react-scrollytelling",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "React scrollytelling with pinned narratives, scroll-driven visuals, and mathematical typesetting.",
   "type": "module",
   "license": "UNLICENSED",

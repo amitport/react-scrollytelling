@@ -29,6 +29,42 @@ test('packed plot exports use supplied data and controlled numerical settings', 
   expect(errors).toEqual([]);
 });
 
+test('default spectrum markers remain distinct over bars and on the plot background', async ({ page }) => {
+  await page.goto('/?view=plots');
+  const marker = page.locator('[data-spectrum-energy-point="0"]');
+  const appearance = await marker.evaluate(element => {
+    const style = getComputedStyle(element);
+    const bar = element.parentElement!.querySelector('[data-spectrum-bar]')!;
+    const background = element.closest('svg')!.querySelector('rect')!;
+    const pointBounds = element.getBoundingClientRect();
+    const barBounds = bar.getBoundingClientRect();
+    return {
+      fill: style.fill, outline: style.stroke, outlineWidth: parseFloat(style.strokeWidth),
+      radius: Number(element.getAttribute('r')),
+      bar: getComputedStyle(bar).fill, background: getComputedStyle(background).fill,
+      overlapsBar: pointBounds.top >= barBounds.top && pointBounds.bottom <= barBounds.bottom,
+    };
+  });
+  const luminance = (color: string) => {
+    const [r, g, b] = (color.match(/[\d.]+/g) ?? []).map(Number).map(channel => {
+      const linear = channel / 255;
+      return linear <= 0.04045 ? linear / 12.92 : ((linear + 0.055) / 1.055) ** 2.4;
+    });
+    if (r === undefined || g === undefined || b === undefined) throw new Error(`Not an RGB color: ${color}`);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (a: string, b: string) => {
+    const first = luminance(a), second = luminance(b);
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+  };
+  expect(appearance.overlapsBar).toBe(true);
+  expect(appearance.radius).toBeGreaterThanOrEqual(6);
+  expect(appearance.outlineWidth).toBeGreaterThanOrEqual(2);
+  expect(contrast(appearance.fill, appearance.outline)).toBeGreaterThanOrEqual(3);
+  expect(contrast(appearance.outline, appearance.bar)).toBeGreaterThanOrEqual(3);
+  expect(contrast(appearance.fill, appearance.background)).toBeGreaterThanOrEqual(4.5);
+});
+
 test('packed plots follow MotionValue progress and settle for reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/?view=plots');

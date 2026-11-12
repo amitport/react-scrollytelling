@@ -150,6 +150,10 @@ titles, units, and descriptions. They accept externally controlled progress
 as a static figure, a slider-driven illustration, or a scroll-driven scene.
 Reduced motion presents the settled visual. Plot colors use a light background
 independently of the surrounding presentation theme.
+The default palette pairs blue with dark orange. Spectrum and quantization
+markers have white outlines to separate them from underlying marks; spectrum
+energy markers are enlarged for visibility. Legends and signed matrix scales
+use the same color meanings.
 
 All four plots accept `title`, `description`, `className`, `style`, `progress`,
 and `reducedMotion` (optional system-preference override). Standalone plots keep
