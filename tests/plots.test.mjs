@@ -60,6 +60,9 @@ test('spectrum squared energy and Frobenius residual include zero and boundary r
   assert.deepEqual(attribute(partial, 'data-cumulative-energy'), ['0.64', '1', '1']);
   assert.deepEqual(attribute(partial, 'data-retained-energy'), ['0.64']);
   assert.deepEqual(attribute(partial, 'data-squared-residual'), ['9']);
+  assert.equal((partial.match(/class="katex"/g) ?? []).length, 2);
+  assert.match(partial, /<mfrac>/);
+  assert.doesNotMatch(partial, /katex-error/);
   assert.match(partial, />3<\/text>/);
   assert.equal(attribute(partial, 'data-spectrum-bar').length, 3);
   assert.deepEqual(attribute(render(SpectrumPlot, { values: [4, 3], retainedRank: 0 }), 'data-squared-residual'), ['25']);
@@ -69,6 +72,7 @@ test('spectrum squared energy and Frobenius residual include zero and boundary r
   assert.deepEqual(attribute(zero, 'data-retained-energy'), ['0']);
   assert.deepEqual(attribute(zero, 'data-squared-residual'), ['0']);
   assert.doesNotMatch(zero, /NaN|Infinity/);
+  assert.doesNotMatch(zero, /<mfrac>/);
   for (const invalid of [
     { values: [1, 2] }, { values: [-1] }, { values: [NaN] },
     { values: [1], retainedRank: -1 }, { values: [1], retainedRank: 2 },

@@ -140,9 +140,11 @@ Version 0.2 adds optional entry points. The scroll core does not import them:
 ```tsx
 import { MatrixPlot, QuantizationPlot, SpectrumPlot, TradeOffPlot } from '@amitport/react-scrollytelling/plots';
 import { uniformQuantize, paretoFrontier, lowRankWeightBits } from '@amitport/react-scrollytelling/numerics';
+import '@amitport/react-scrollytelling/styles.css';
 ```
 
-Plots render SVG without requiring the scroll stylesheet. Supply your own data,
+Plots render SVG; the bundled stylesheet supplies KaTeX fonts and typesetting
+for the spectrum's residual and energy formulas. Supply your own data,
 titles, units, and descriptions. They accept externally controlled progress
 (a number in `[0, 1]` or a Framer Motion `MotionValue`), so the same visual works
 as a static figure, a slider-driven illustration, or a scroll-driven scene.

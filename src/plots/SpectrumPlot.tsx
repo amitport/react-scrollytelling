@@ -1,3 +1,4 @@
+import { MathTex } from '../MathTex.js'
 import { colors, finite, formatNumber, Frame, labelsMatch, rank, usePlotProgress } from './shared.js'
 import type { PlotProps } from './shared.js'
 
@@ -41,7 +42,7 @@ export function SpectrumPlot({
   const barWidth = Math.min(44, step - 10)
   const summary = `Retained rank ${retainedRank} of ${values.length}. Cumulative squared energy ${formatValue(energy * 100)} percent. Squared Frobenius truncation residual ${formatValue(residual)}. ${maximum === 0 ? 'Zero spectrum: energy fractions are defined as zero and residual is zero. ' : ''}Supplied singular values: ${values.map(formatValue).join(', ')}.`
   return (
-    <Frame {...frame} title={title} viewWidth={viewWidth}
+    <Frame {...frame} title={title} viewWidth={viewWidth} viewHeight={384}
       description={description ?? `${summary} These are matrix approximation metrics, not model accuracy.`}>
       <text x={24} y={57} fill={colors.muted}>Bar: singular value σᵢ · Teal point: cumulative squared energy</text>
       <line x1={64} x2={viewWidth - 56} y1={246} y2={246} stroke={colors.line} />
@@ -65,11 +66,21 @@ export function SpectrumPlot({
       <text x={24} y={299} fill={colors.ink} data-retained-energy={energy}>
         Rank {retainedRank}/{values.length} · Cumulative squared energy: {formatValue(energy * 100)}%
       </text>
-      <text x={24} y={324} fill={colors.ink} data-squared-residual={residual}>
-        Squared Frobenius residual ‖A − Aᵣ‖²_F = Σᵢ&gt;ᵣ σᵢ² = {formatValue(residual)}
-      </text>
-      <text x={24} y={347} fill={colors.muted} fontSize={13}>
-        {maximum === 0 ? 'Zero spectrum: energy fraction defined as 0; residual = 0.' : 'Energy = Σᵢ≤ᵣ σᵢ² / Σᵢ σᵢ². Matrix approximation metrics, not model accuracy.'}
+      <foreignObject x={24} y={306} width={viewWidth - 48} height={30} data-squared-residual={residual}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', height: '100%', whiteSpace: 'nowrap', fontSize: 14, color: colors.ink }}>
+          <span>Squared Frobenius residual</span>
+          <MathTex tex={String.raw`\lVert A - A_r \rVert_F^2 = \sum_{i>r} \sigma_i^2`} />
+          <span>= {formatValue(residual)}</span>
+        </div>
+      </foreignObject>
+      <foreignObject x={24} y={336} width={viewWidth - 48} height={30} data-spectrum-energy-definition="">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', height: '100%', whiteSpace: 'nowrap', fontSize: 13, color: colors.muted }}>
+          <span>Energy =</span>
+          <MathTex tex={maximum === 0 ? '0' : String.raw`\frac{\sum_{i \le r} \sigma_i^2}{\sum_i \sigma_i^2}`} />
+        </div>
+      </foreignObject>
+      <text x={24} y={379} fill={colors.muted} fontSize={13} data-spectrum-note="">
+        {maximum === 0 ? 'Zero spectrum: energy fraction defined as 0; residual = 0.' : 'Matrix approximation metrics, not model accuracy.'}
       </text>
     </Frame>
   )

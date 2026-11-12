@@ -15,6 +15,10 @@ test('packed plot exports use supplied data and controlled numerical settings', 
   await page.getByRole('slider', { name: 'Bit width', exact: true }).fill('3');
   await expect(page.locator('[data-quantization-level]')).toHaveCount(8);
   await expect(page.locator('[data-squared-residual]')).toHaveAttribute('data-squared-residual', '1.25');
+  await expect(page.locator('[data-squared-residual] .katex')).toBeVisible();
+  await expect(page.locator('[data-spectrum-energy-definition] .katex')).toBeVisible();
+  await expect(page.locator('[data-spectrum-energy-definition] math mfrac')).toHaveCount(1);
+  await expect(page.locator('.katex-error')).toHaveCount(0);
   await page.getByRole('slider', { name: 'Retained rank', exact: true }).fill('0');
   await expect(page.locator('[data-squared-residual]')).toHaveAttribute('data-squared-residual', '26.25');
   await expect(page.locator('[data-retained-energy]')).toHaveAttribute('data-retained-energy', '0');
@@ -28,6 +32,7 @@ test('packed plot exports use supplied data and controlled numerical settings', 
 test('packed plots follow MotionValue progress and settle for reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/?view=plots');
+  await page.evaluate(() => document.fonts.ready);
   const point = page.locator('[data-quantized-point="3"]');
   const settled = await point.evaluate(element => element.getBoundingClientRect().x);
   await page.getByRole('slider', { name: 'Reveal progress', exact: true }).fill('0');
@@ -52,6 +57,12 @@ test('standalone plots retain readable, reachable content on mobile', async ({ p
       await expect(wrapper).toHaveAttribute('tabindex', '0');
       expect(await wrapper.locator('text').evaluateAll(elements => elements.every(element =>
         Number.parseFloat(getComputedStyle(element).fontSize) >= 12))).toBe(true);
+      expect(await wrapper.locator('foreignObject .katex-html').evaluateAll(elements => elements.every(element => {
+        const formula = element.getBoundingClientRect();
+        const row = element.closest('foreignObject')!.getBoundingClientRect();
+        return formula.left >= row.left && formula.right <= row.right
+          && formula.top >= row.top && formula.bottom <= row.bottom;
+      })), 'typeset formulas fit inside their SVG rows').toBe(true);
       await wrapper.evaluate(element => { element.scrollLeft = element.scrollWidth; });
       expect(await wrapper.evaluate(element => Math.abs(element.scrollLeft + element.clientWidth - element.scrollWidth))).toBeLessThanOrEqual(1);
     }
