@@ -23,7 +23,7 @@ function run(args, cwd = root, capture = false) {
 await mkdir(join(root, '.artifacts'), { recursive: true });
 const [pack] = JSON.parse(run(['pack', '--ignore-scripts', '--json', '--pack-destination', '.artifacts'], root, true));
 assert.ok(pack.files.every(({ path }) => path.startsWith('dist/') || ['package.json', 'README.md', 'LICENSE'].includes(path)), 'Unexpected files in package');
-for (const path of ['dist/index.js', 'dist/index.d.ts', 'dist/styles.css', 'dist/THIRD_PARTY_NOTICES.txt']) {
+for (const path of ['dist/index.js', 'dist/index.d.ts', 'dist/plots.js', 'dist/plots.d.ts', 'dist/numerics.js', 'dist/numerics.d.ts', 'dist/styles.css', 'dist/THIRD_PARTY_NOTICES.txt']) {
   assert.ok(pack.files.some(file => file.path === path), `Missing ${path}`);
 }
 await rm(consumer, { recursive: true, force: true });

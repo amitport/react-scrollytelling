@@ -1,6 +1,6 @@
 {
   "name": "@amitport/react-scrollytelling",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React scrollytelling with pinned narratives, scroll-driven visuals, and mathematical typesetting.",
   "type": "module",
   "license": "UNLICENSED",
@@ -13,13 +13,26 @@
   "bugs": {
     "url": "https://github.com/amitport/react-scrollytelling/issues"
   },
-  "files": ["dist", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./plots": {
+      "types": "./dist/plots.d.ts",
+      "import": "./dist/plots.js"
+    },
+    "./numerics": {
+      "types": "./dist/numerics.d.ts",
+      "import": "./dist/numerics.js"
     },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
@@ -31,7 +44,7 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit --emitDeclarationOnly false",
-    "test": "npm run check && npm run build && node scripts/test-package.mjs",
+    "test": "npm run check && npm run build && node --test tests/*.test.mjs && node scripts/test-package.mjs",
     "prepack": "npm run build"
   },
   "peerDependencies": {

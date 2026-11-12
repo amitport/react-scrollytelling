@@ -18,9 +18,9 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: 'library.ts',
+      entry: { index: 'library.ts', plots: 'src/plots.ts', numerics: 'src/numerics.ts' },
       formats: ['es'],
-      fileName: 'index',
+      fileName: (_format, entryName) => `${entryName}.js`,
       cssFileName: 'styles',
     },
     rolldownOptions: {

@@ -133,8 +133,93 @@ After publication, `npm test -- --published` runs the same consumer checks
 against the exact manifest version installed from your configured registry.
 The release workflow verifies both anonymous registry access and installation.
 
-The package exports only the scroll core and math renderers. Slide players,
-domain-specific simulations, paper assets, and benchmark data are out of scope.
+## Scientific visuals and numerical helpers
+
+Version 0.2 adds optional entry points. The scroll core does not import them:
+
+```tsx
+import { MatrixPlot, QuantizationPlot, SpectrumPlot, TradeOffPlot } from '@amitport/react-scrollytelling/plots';
+import { uniformQuantize, paretoFrontier, lowRankWeightBits } from '@amitport/react-scrollytelling/numerics';
+```
+
+Plots render SVG without requiring the scroll stylesheet. Supply your own data,
+titles, units, and descriptions. They accept externally controlled progress
+(a number in `[0, 1]` or a Framer Motion `MotionValue`), so the same visual works
+as a static figure, a slider-driven illustration, or a scroll-driven scene.
+Reduced motion presents the settled visual. Plot colors use a light background
+independently of the surrounding presentation theme.
+
+All four plots accept `title`, `description`, `className`, `style`, `progress`,
+and `reducedMotion` (optional system-preference override). Standalone plots keep
+their natural text size inside a keyboard-focusable horizontal scroll region
+on narrow screens. Supplying `x`, `y`, `width`, or `height` instead returns a bare
+SVG for embedding; the host then owns scaling and readability.
+
+- **`MatrixPlot`** takes rectangular `values`, optional `referenceValues`
+  (displays **values minus reference**), a shared `colorDomain`, row/column
+  labels, `formatValue`, and highlighted row/column indices. `retainedRank`
+  masks the leading square visually; it does **not** compute a low-rank
+  approximation. `compact` removes the visible heading, legend, and default
+  index labels for embedding small matrices; accessible descriptions remain.
+  Supply a shared color domain when comparing matrices or residuals.
+- **`QuantizationPlot`** takes `values`, matching `reconstructedValues`,
+  optional `levels`, and a `[minimum, maximum]` display/clipping `range`.
+  Reconstructions must be inside that range. Optional `labels` and
+  `formatValue` control display only. Out-of-range originals are marked clipped.
+  Rounding error is reconstruction minus clipped original; total error is
+  reconstruction minus original. Progress moves points; labels show final values.
+- **`SpectrumPlot`** takes descending nonnegative `values`, `retainedRank`
+  (zero through the number of values), optional `labels` and `formatValue`.
+  It shows singular values, cumulative **squared** energy, and squared
+  Frobenius truncation residual. For an all-zero spectrum, energy fraction and
+  residual are both defined as zero. Progress fades discarded bars from opacity
+  1 to 0.12 without moving values, energy points, or labels.
+- **`TradeOffPlot`** takes `points: { id, x, y, label? }[]`, `xAxis`, and
+  `yAxis`. Each axis accepts `label`, `unit`, `domain`, `scale: 'linear' | 'log'`,
+  and `direction: 'min' | 'max'`. Directions affect optimization, not axis
+  orientation. `showPareto` highlights the raw-data frontier; `pruneDominated`
+  additionally fades whole dominated points away with progress. Otherwise,
+  progress reveals all points. `selectedId` and `highlightedIds` add rings.
+  Labels are not truncated: use sparse labels to avoid collisions. Explicit
+  domains clamp displayed coordinates, not objective values. Log values must
+  be positive. Auto domains expand constant data; ties remain distinct points.
+
+Open `?view=plots` in the basic example for controlled plots and numerical
+helpers. Its default scroll view also drives a spectrum with chapter progress:
+
+```tsx
+function SpectrumScene({ progress }: { progress: MotionValue<number> }) {
+  const local = useChapterProgress(progress, 1, 2);
+  return <SpectrumPlot values={[2, 0.5]} retainedRank={1}
+    title="Supplied spectrum" progress={local} />;
+}
+```
+
+Import `MotionValue` as a type from `framer-motion`, `useChapterProgress` from
+the package root, and `SpectrumPlot` from `/plots`. Render this component
+inside your canvas rather than calling hooks in a render callback.
+
+The numerical entry point has no React, motion, or DOM dependency:
+
+- `uniformQuantize(value, bits, minimum = -1, maximum = 1)` returns
+  `{ value, step, index, levels }`. It uses an endpoint-inclusive uniform grid
+  with `2 ** bits` levels, clips inputs, and rounds halfway indices toward
+  positive infinity (`Math.round`). This is **not** a generic signed-integer
+  affine quantizer: the grid need not contain zero, and there is no zero-point
+  calibration. Bit widths are integers from 1 through 16.
+- `paretoFrontier(items, [{ value, direction }, { value, direction }])`
+  filters two finite objectives, each independently `'min'` or `'max'`.
+  Strict dominance requires improvement on at least one objective.
+  Equal objective pairs remain distinct, and input order is preserved.
+- `lowRankWeightBits(input, output, rank, aBits, bBits)` returns
+  `rank * (output * aBits + input * bBits)` for factors shaped
+  `[output, rank]` and `[rank, input]`. This counts ideal packed weight bits,
+  **not** scale/zero-point metadata, alignment, padding, activations, or workspace.
+  Dimensions, rank, and precisions must be positive safe integers; rank cannot
+  exceed the smaller dimension and the total must remain a safe integer.
+
+Slide players, trained quantizers, numerical decomposition solvers, exhaustive
+allocation APIs, paper assets, and benchmark datasets remain out of scope.
 
 ## Releases
 

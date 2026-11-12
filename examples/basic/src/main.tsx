@@ -6,6 +6,8 @@ import {
   type ScrollChapter, type ScrollVisualState,
 } from '@amitport/react-scrollytelling';
 import '@amitport/react-scrollytelling/styles.css';
+import { PlotExamples } from './PlotExamples';
+import { SpectrumPlot } from '@amitport/react-scrollytelling/plots';
 
 const chapters: ScrollChapter[] = [
   {
@@ -32,6 +34,7 @@ const sectionLinks = [{ id: 'sources', label: 'Sources' }];
 
 function Canvas({ scrollYProgress, activeChapter }: ScrollVisualState) {
   const local = useChapterProgress(scrollYProgress, 0, chapters.length);
+  const spectrumProgress = useChapterProgress(scrollYProgress, 1, chapters.length);
   const reduced = useReducedMotion();
   const reveal = useTransform(local, value => reduced ? 1 : Math.min(1, value / 0.5));
   const rx = useTransform(reveal, [0, 1], [70, 140]);
@@ -44,22 +47,22 @@ function Canvas({ scrollYProgress, activeChapter }: ScrollVisualState) {
         <SvgMath x={80} y={285} width={480} height={50} tex="(x_1,x_2)\mapsto(2x_1,\,0.5x_2)" fontSize={26} />
       </ScrollScene>
       <ScrollScene progress={scrollYProgress} index={1} count={chapters.length} activeChapter={activeChapter}>
-        <rect x="70" y="65" width="500" height="230" rx="18" fill="#eff6ff" stroke="#93c5fd" />
-        <text x="320" y="130" textAnchor="middle" fill="#1e293b" fontSize="28">Maximum stretch: 2</text>
-        <SvgMath x={80} y={165} width={480} height={65} tex="\sigma_{\max}(W)=2" fontSize={30} />
-        <text x="320" y="265" textAnchor="middle" fill="#475569" fontSize="22">A mathematical bound, not a benchmark.</text>
+        <SpectrumPlot x={0} y={0} width={640} height={360} title="Maximum stretch: 2"
+          description="Supplied singular values of the illustrated linear map, not a benchmark."
+          values={[2, 0.5]} retainedRank={1} progress={spectrumProgress} />
       </ScrollScene>
     </svg>
   </ScrollCanvas>;
 }
 
 createRoot(document.getElementById('root')!).render(<StrictMode>
-  <ScrollPresentation title="Scrollytelling example" brand="SCROLLYTELLING" subtitle="From a visual to a claim"
+  {new URLSearchParams(location.search).get('view') === 'plots' ? <PlotExamples /> : <ScrollPresentation title="Scrollytelling example" brand="SCROLLYTELLING" subtitle="From a visual to a claim"
     chapters={chapters} sectionLinks={sectionLinks} renderVisual={state => <Canvas {...state} />}
     overview={goToChapter => <section className="scrolly-abstract-header">
       <div className="scrolly-abstract-card">
         <h1 className="scrolly-abstract-title">Explain an idea as the reader scrolls</h1>
         <p className="scrolly-abstract-body">A pinned narrative, one shared visual canvas, and continuous scroll-driven progress. This example imports the installed package, not its source.</p>
+        <p><a href="?view=plots">Explore scientific plots and numerical helpers</a></p>
         <button className="scrolly-abstract-jump-btn" onClick={() => goToChapter(0)}>Start walkthrough</button>
       </div>
     </section>}
@@ -69,5 +72,5 @@ createRoot(document.getElementById('root')!).render(<StrictMode>
         <p className="scrolly-abstract-body">These are synthetic teaching examples. Replace them with your own content, citations, and evidence.</p>
       </div>
     </section>}
-  />
+  />}
 </StrictMode>);

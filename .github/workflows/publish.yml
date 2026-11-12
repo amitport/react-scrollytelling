@@ -47,6 +47,13 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
+      - name: Save the tested release tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: .artifacts/*.tgz
+          include-hidden-files: true
+          if-no-files-found: error
       - name: Publish with trusted publishing
         if: ${{ !inputs.verify_only && !inputs.bootstrap }}
         run: npm publish .artifacts/amitport-react-scrollytelling-$(node -p "require('./package.json').version").tgz --access public
